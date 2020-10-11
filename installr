@@ -1,0 +1,4 @@
+cd ..
+source venv/bin/activate
+cd -
+pip3 install -r requirements.txt
