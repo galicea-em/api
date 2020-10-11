@@ -57,14 +57,18 @@ def test_implicit():
   if password:
     login = request.args.get('login')
     user_id = get_user_id(login, password)
-    if user_id > 0:
+    if user_id is None:
+      user_id=0
+    elif user_id > 0:
       sid=ses_login(user_id)
       put_session(sid, user_id)
     else:
       user_id=0
   else:
     user_id = get_session_uid()
-    if user_id>0:
+    if user_id is None:
+      user_id=0
+    elif user_id>0:
       auth_time = get_session_auth_time()
       if time_to_now(auth_time) > LOGIN_TIMEOUT:
         user_id=0
