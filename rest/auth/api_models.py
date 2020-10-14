@@ -4,9 +4,10 @@
 
 
 from flask_restx import Api, fields
-from conf import app
+#from conf import app
+from ..api import api
 
-
+"""
 api = Api(app,
     endpoint="/",
     version='1.0',
@@ -14,6 +15,7 @@ api = Api(app,
     description='OAuth / OpenId Connect',
     doc='/help/'
 )
+"""
 
 OAuth2Error = api.model('OAuth2Error', {
   'error' : fields.String,

@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from . import CREATING, COMMANDLINE, DB_PATH
 
 if CREATING:
-  print('cr')
+#  print('cr')
   Base = declarative_base()
 else:
   if COMMANDLINE:

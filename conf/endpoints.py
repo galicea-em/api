@@ -13,9 +13,9 @@ from flask_login import login_user, logout_user
 from . import app
 from rest import ses_login, get_host_url, get_session_auth_time, get_session_uid, get_session_sid
 from rest import get_user_id, put_access_token, put_session
-from rest.oid import time_to_now, LOGIN_TIMEOUT, RESPONSE_TYPES_SUPPORTED
-from rest.oid_token import create_id_token
-from rest.api_models import api
+from rest import time_to_now, LOGIN_TIMEOUT, RESPONSE_TYPES_SUPPORTED
+from rest import create_id_token
+from rest import api
 
 # CORS
 CORS(app)

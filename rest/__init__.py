@@ -1,9 +1,14 @@
-from .oid import RESPONSE_TYPES_SUPPORTED
-from .oid_flask import ses_login, get_host_url, get_session_auth_time, get_session_uid, get_session_sid
-from .oid_base import get_user_id, put_access_token, put_session
+from rest.api import api
 
-from .api_models import api
-from .oid_token import create_id_token
+from rest.auth.oid import time_to_now, LOGIN_TIMEOUT, RESPONSE_TYPES_SUPPORTED
 
-from .openid  import ns as api_openid
-from .oauth  import ns as api_oauth
+from rest.auth.oid_flask import ses_login, get_host_url, get_session_auth_time, get_session_uid, get_session_sid
+from rest.auth.oid_base import get_user_id, put_access_token, put_session
+
+from rest.auth.oid_token import create_id_token
+
+from rest.auth.openid  import ns as api_openid
+from rest.auth.oauth  import ns as api_oauth
+
+import rest.auth.oid as oid
+
