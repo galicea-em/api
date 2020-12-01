@@ -3,8 +3,9 @@
 # (C) Galicea 2020
 
 
-from .oid_base import get_app
+from .oid_base import get_client, int_client_id, ext_client_id, int_user_id, ext_client_id
 from .oid import OAuthException, RESPONSE_TYPES_SUPPORTED
+
 
 ###
 
@@ -18,8 +19,8 @@ class OAuthValidator():
           )
         return response_type
 
-    def validate_app(self, client_id):
-        app = get_app(int(client_id))
+    def validate_client(self, client_id):
+        app = get_client(int(client_id))
         if not app:
             raise OAuthException(
                 'client_id param is invalid',
@@ -62,7 +63,7 @@ class OAuthValidator():
             'client_id param is missing',
             OAuthException.INVALID_CLIENT,
           )
-        client_id = int(args['client_id'])
+        client_id = int_client_id(args['client_id'])
         if 'redirect_uri' not in args:
           raise OAuthException(
             'redirect_uri param is missing',
@@ -86,7 +87,7 @@ class OAuthValidator():
           OAuthException.INVALID_CLIENT,
         )
       return (
-        int(args['client_id']),
+        int_client_id(args['client_id']),
         args['redirect_uri'],
         self.arg_or_null(args, 'client_secret'),
         self.arg_or_null(args, 'code')
@@ -116,7 +117,7 @@ class OAuthValidator():
             'client_id param is missing',
             OAuthException.INVALID_CLIENT,
           )
-        client_id = args['client_id']
+        client_id = int_client_id(args['client_id'])
         if 'redirect_uri' not in args:
           raise OAuthException(
             'redirect_uri param is missing',

@@ -115,6 +115,11 @@ class OpenIdAuthorizeClass(Resource):
             'error': e.type,
             'error_description': str(e)
           }
+        except Exception as e0:
+            return {
+                'error': 'Internal error',
+                'error_description': str(e0)
+            }
 
 
 

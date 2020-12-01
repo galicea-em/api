@@ -131,7 +131,7 @@ def login_post():
 from rest import  api_openid
 from rest import  api_oauth
 
+
 def define():
   api.add_namespace(api_oauth)
   api.add_namespace(api_openid)
-

@@ -122,6 +122,11 @@ Implicit Grant: https://tools.ietf.org/html/rfc6749 4.2
             'error': e.type,
             'error_description': str(e)
           }
+        except Exception as e0:
+          return {
+            'error': 'internal',
+            'error_description': str(e0)
+          }
 
 
 ############# token
@@ -187,7 +192,8 @@ Zwraca JSON:
                 )
         except OAuthException as e:
             abort(400, str(e))
-
+        except Exception as e0:
+            abort(400, 'Internal: '+str(e0))
 
 ### introspect
 @ns.route('/introspect')

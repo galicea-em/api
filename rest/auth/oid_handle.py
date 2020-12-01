@@ -19,7 +19,7 @@ from .oid_valid import validator
 
 def handle_oauth_authorize(response_type, user_id, client_id, redirect_uri, scopes, state):
   try:
-    app = validator.validate_app(client_id)
+    app = validator.validate_client(client_id)
     redirect_uri = validator.validate_redirect_uri(app, redirect_uri)
   except OAuthException as e:
     return  {
@@ -50,7 +50,7 @@ def handle_oauth_authorize(response_type, user_id, client_id, redirect_uri, scop
     key = get_authorization_code_jwk()
     response_params['code'] = jwt_encode(payload, key)
   if 'token' in response_types:
-    access_token = access_token_retrieve_or_create(client_id,user_id)
+    access_token = access_token_retrieve_or_create(client_id,user_id,scopes)
     response_params['access_token'] = access_token
     response_params['token_type'] = 'bearer'
 
@@ -69,7 +69,7 @@ def handle_oauth_authorize(response_type, user_id, client_id, redirect_uri, scop
 
 
 def handle_grant_type_authorization_code(client_id, redirect_uri, client_secret, code):
-  app = validator.validate_app(client_id)
+  app = validator.validate_client(client_id)
   redirect_uri = validator.validate_redirect_uri(app, redirect_uri)
   validator.validate_client_secret(app, client_secret)
   if not code:
@@ -118,7 +118,7 @@ def handle_grant_type_authorization_code(client_id, redirect_uri, client_secret,
 
 
 def handle_grant_type_client_credentials(client_id, client_secret):
-  app = validator.validate_app(client_id)
+  app = validator.validate_client(client_id)
   validator.validate_client_secret(app, client_secret)
   # Could be replaced with data migration
   if not app.system_user_id:

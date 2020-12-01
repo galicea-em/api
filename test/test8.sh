@@ -1,4 +1,8 @@
 echo "Python Client Test"
+cd ..
+UUID=$(./manager.py --id=1 uuid)
+cd -
+
 curl -X POST  -c "./cookiefile" \
              -d '{"user":"demo", "password":"demo"}'  \
              -H "accept: application/json" \
@@ -6,7 +10,7 @@ curl -X POST  -c "./cookiefile" \
              "http://127.0.0.1:5000/login"
 
 URI="http%3A%2F%2F127.0.0.1%3A3000"
-URL="http://127.0.0.1:5000/oauth/authorize?redirect_uri=$URI&response_type=code&client_id=1&state=state_test&response_mode=query"
+URL="http://127.0.0.1:5000/oauth/authorize?redirect_uri=$URI&response_type=code&client_id=$UUID&state=state_test&response_mode=query"
 
 echo $URL
 

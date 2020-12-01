@@ -1,14 +1,14 @@
 #!/usr/bin/python3
-from sqlalchemy import create_engine, Column, Integer, Sequence, String
+from sqlalchemy import create_engine, Column, Integer, Sequence, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from . import CREATING, COMMANDLINE, DB_PATH
+from uuid import uuid4
 
 if CREATING:
-#  print('cr')
   Base = declarative_base()
 else:
   if COMMANDLINE:
@@ -108,11 +108,13 @@ class ClientApplication(Base):
   secret = Column(String(40))
   system_user_id = Column(Integer)
   auth_redirect_uri = Column(String(500))
+  uuid = Column(String(40))
 
   def __repr__(self):
     return "<ClientApplication('%s', '%s')>" % (self.id, self.auth_redirect_uri)
 
   def __init__(self, ident, secret, system_user_id, auth_redirect_uri):
+    self.uuid = str(uuid4())
     self.ident = ident
     self.secret = secret
     self.system_user_id = system_user_id
@@ -165,6 +167,18 @@ class Session(Base):
     self.client_id = client_id
     self.user_id = user_id
 
+class ScopeCl(Base):
+  __tablename__ = 'scope_cl'
+  id = Column(Integer, Sequence('scope_cl_seq'), primary_key=True)
+  client_id = Column(Integer)
+  scope = Column(String(20))
+
+  def __repr__(self):
+    return "<Uuid('%s', '%s)>" % (self.user_id, self.scope)
+
+  def __init__(self, user_id=None, scope=None):
+    self.user_id = user_id
+    self.scope = scope
 
 class DataManager():
 
@@ -210,10 +224,13 @@ class DataManager():
       session.rollback()
     return user.id
 
-  def get_app(self,client_id):
+  def get_client(self,client_id):
     return ClientApplication.query.filter_by(id=client_id).first()
 
-  def add_app(self, ident, secret, system_user_id, auth_redirect_uri):
+  def get_client_by_uuid(self,uuid):
+    return ClientApplication.query.filter_by(uuid=uuid).first()
+
+  def add_client(self, ident, secret, system_user_id, auth_redirect_uri):
     session = self.DBSession()
     app = ClientApplication(ident, secret, system_user_id, auth_redirect_uri)
     try:
@@ -225,6 +242,13 @@ class DataManager():
 
   def get_user(self,user_id):
     return User.query.filter_by(id=user_id).first()
+
+  def get_user_by_login(self, login):
+    u=User.query.filter_by(login=login).first()
+    if u:
+      return u.id
+    else:
+      return 0
 
   def get_user_id(self, login, password):
     u=User.query.filter_by(login=login).first()

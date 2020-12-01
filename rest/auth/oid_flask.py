@@ -5,7 +5,7 @@
 
 import uuid
 from datetime import datetime
-from flask import ( session, url_for )
+from flask import ( session, request )
 from .oid import datetime_to_timestamp
 
 def ses_login(user_id, client_id=0):
@@ -28,7 +28,7 @@ def get_session_uid():
   return session.get('uid')
 
 def get_session_cid():
-  return session.get('uid')
+  return session.get('cid')
 
 def get_session_auth_time():
   t=session.get('auth_time')
@@ -38,5 +38,6 @@ def get_session_auth_time():
     return 0
 
 def get_host_url():
-  return url_for('login')
+  return request.host_url
+      #url_for('.oauth_jwks_class')
 

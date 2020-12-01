@@ -1,6 +1,8 @@
 from .sketch_model import (
-            get_app,
+            get_client,
+            get_client_by_uuid,
             get_user,
+            get_user_by_login,
             get_user_id,
             put_access_token,
             get_access_token,

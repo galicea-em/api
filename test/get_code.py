@@ -13,7 +13,9 @@ auth_url='http://127.0.0.1:5000/oauth/authorize'
 server_port=3000
 #redirect_url='http://127.0.0.1:3000'
 redirect_uri='http%3A%2F%2F127.0.0.1%3A3000'
-client_id=1
+client_id='9a195ac5-1a34-4bdd-837e-13f80bc5364d'
+print('Check client_id (../manage_py --id=1 uuid):')
+print(client_id)
 
 url=auth_url+('?redirect_uri=%s&client_id=%s' % (redirect_uri,client_id))+'&response_type=code&state=state_test&response_mode=query' 
 

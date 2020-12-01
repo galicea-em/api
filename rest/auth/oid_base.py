@@ -8,8 +8,30 @@ if selected_dm()=='sketch':
 else:
   from model import dm
 
-def get_app(client_id):
-  return dm.get_app(client_id)
+def get_client(client_id):
+  return dm.get_client(client_id)
+
+def get_client_by_uuid(uuid):
+  return dm.get_client_by_uuid(uuid)
+
+#### int* / ext*
+def int_user_id(user_id):
+  user=dm.get_user_by_login(user_id)
+  return user.id if user else 0
+
+def ext_user_id(user_id):
+  user=dm.get_user(user_id)
+  return user.login if user else None
+
+def int_client_id(client_id):
+  app=dm.get_client_by_uuid(client_id)
+  return app.id if app else 0
+
+def ext_client_id(client_id):
+  app=dm.get_client(client_id)
+  return app.uuid if app else None
+
+#####################
 
 def get_user(user_id):
   return dm.get_user(user_id)
@@ -40,4 +62,7 @@ def check_session(sid, uid):
 
 def token_for_session(sid,uid):
   return dm.token_for_session(sid,uid)
+
+def int_clint_id(client_id):
+  return 0
 

@@ -1,4 +1,8 @@
 echo "Authorization code grant"
+cd ..
+UUID=$(./manager.py --id=1 uuid)
+cd -
+
 
 URI="http%3A%2F%2F127.0.0.1%3A3000"
 
@@ -8,10 +12,9 @@ curl -X POST  -c "./cookiefile" \
              -H "Content-Type: application/json" \
              "http://127.0.0.1:5000/login"
 
-
 AUTH_CODE=$(curl -X GET -b "./cookiefile" \
             -H "accept: application/json" \
-            "http://127.0.0.1:5000/oauth/authorize?redirect_uri=$URI&response_type=code&client_id=1" \
+            "http://127.0.0.1:5000/oauth/authorize?redirect_uri=$URI&response_type=code&client_id=$UUID" \
 |  python <(cat <<PYTHON
 import sys
 for line in sys.stdin:
@@ -29,9 +32,9 @@ PYTHON
 
 echo "code=$AUTH_CODE"
 echo "---------------"
-echo 'zapytanie o kod dostepu:'
+echo 'zapytanie o token:'
 
 curl -X POST -H "accept: application/json" \
              -H "Content-Type: application/x-www-form-urlencoded" \
-             --data "client_id=1&scope=&code=$AUTH_CODE&redirect_uri=$URI&grant_type=authorization_code&client_secret=secret" \
+             --data "client_id=$UUID&scope=&code=$AUTH_CODE&redirect_uri=$URI&grant_type=authorization_code&client_secret=secret" \
              http://127.0.0.1:5000/oauth/token

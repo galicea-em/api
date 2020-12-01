@@ -1,0 +1,19 @@
+2020-11-06  0.0.2
+
+1) conf/api.ini
+keys in files
+
+2) ext_client_id/int_client_id
+
+int_client_id - id from model/database (integer)
+ext_client_id - uuid
+
+uuid column in client_app table
+
+
+3) terminology:
+   get_app -> get_client
+   add_app -> add_client
+
+
+

@@ -3,6 +3,8 @@
 # authors: Jerzy Wawro
 # (C) Galicea 2020
 
+from uuid import uuid4
+
 class Address():
   def __init__(self, id, login, country=None, locality=None,
                postal_code=None, region=None,
@@ -31,6 +33,7 @@ class User():
 class ClientApplication():
   def __init__(self, id, ident, secret, system_user_id, auth_redirect_uri):
     self.id = id
+    self.uuid = uuid4()
     self.ident = ident
     self.secret = secret
     self.system_user_id = system_user_id
@@ -66,23 +69,34 @@ users=[
 ]
 
 applications = [
-  ClientApplication(1,'demoapp', 'secret', 1, 'http://127.0.0.1:3000'),
-  ClientApplication(2,'demoimp', 'secret', 1, 'http://localhost:3000/callback')
+  ClientApplication(1,'demoapp', 'secret', 1, 'http://127.0.0.1:3000')
 ]
 
 tokens = []
 
 sessions = []
 
-def get_app(client_id):
+def get_client(client_id):
   for app in applications:
     if app.id == client_id:
+      return app
+  return None
+
+def get_client_by_uuid(uuid):
+  for app in applications:
+    if app.uuid == uuid:
       return app
   return None
 
 def get_user(user_id):
   for u in users:
     if u.id == user_id:
+      return u
+  return None
+
+def get_user_by_login(login):
+  for u in users:
+    if u.login  == login:
       return u
   return None
 

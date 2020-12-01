@@ -6,8 +6,6 @@
 from model import set_context, selected_dm
 
 DB_PATH='sqlite:///api.db'
-#DB_PATH='mysql://user:password@localhost/demo'
-
 
 def create():
   set_context(True, creating=True)
@@ -21,7 +19,17 @@ def demo():
   from model import dm
   a=dm.add_address(country='Poland')
   dm.add_user('demo', 'demo', name='John Down', email='jd@example.com', address_id=a)
-  dm.add_app('demoapp', 'secret', 1, 'http://127.0.0.1:3000')
+  dm.add_client('demoapp', 'secret', 1, 'http://127.0.0.1:3000')
+
+def uuid(id):
+  set_context(True, creating=False)
+  selected_dm(DB_PATH)
+  from model import dm
+  cl=dm.get_client(id)
+  if cl:
+    print(cl.uuid)
+  else:
+    print('Not found')
 
 def test():
   set_context(True, creating=False)
@@ -29,7 +37,7 @@ def test():
   from model import dm
   print(dm.get_user(1))
   print(dm.get_user_id('demo','demo'))
-  print(dm.get_app(1))
+  print(dm.get_client(1))
 
 
 def user(ident, secret, email):
@@ -42,7 +50,7 @@ def client(ident, secret, uri, user_id=1):
   set_context(True, creating=False)
   selected_dm(DB_PATH)
   from model import dm
-  dm.add_app(ident, secret, user_id, uri)
+  dm.add_client(ident, secret, user_id, uri)
 
 import argparse
 from argparse import RawTextHelpFormatter
@@ -54,17 +62,19 @@ parser.add_argument('operation', help='''Operation:
    test - select demo data
    user - register user
    client - register client
+   uuid - client_id to uuid
 ''')
 parser.add_argument('--ident', help='login/identifier for new object')
 parser.add_argument('--secret', help='Secret/Password for new object')
 parser.add_argument('--uri', help='Redirect URI')
 parser.add_argument('--email', help='Option: user email', default='')
+parser.add_argument('--id', help='Option: id (client\'s)', default='1')
 parser.add_argument('--db', help='Database Path eg: sqlite:///demo.db')
 
 
 if __name__ == '__main__':
   args = parser.parse_args()
-  if not args.operation:
+  if not 'operation' in args:
     parser.print_help()
   else:
     if args.db:
@@ -73,6 +83,8 @@ if __name__ == '__main__':
       create()
     elif args.operation == 'demo':
       demo()
+    elif args.operation == 'uuid':
+      uuid(args.id)
     elif args.operation == 'test':
       test()
     elif (args.operation == 'user') or (args.operation == 'client') :
