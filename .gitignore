@@ -134,3 +134,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#####
+.idea/
+
+conf/jwt.pem
+conf/key.jwk
+conf/api.ini
