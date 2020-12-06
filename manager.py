@@ -27,9 +27,10 @@ def uuid(id):
   from model import dm
   cl=dm.get_client(id)
   if cl:
-    print(cl.uuid)
+    return cl.uuid
   else:
-    print('Not found')
+    return ''
+
 
 def test():
   set_context(True, creating=False)
@@ -84,7 +85,8 @@ if __name__ == '__main__':
     elif args.operation == 'demo':
       demo()
     elif args.operation == 'uuid':
-      uuid(args.id)
+      uu=uuid(args.id)
+      print(uu if uu else 'Not found')
     elif args.operation == 'test':
       test()
     elif (args.operation == 'user') or (args.operation == 'client') :

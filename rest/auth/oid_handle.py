@@ -68,10 +68,9 @@ def handle_oauth_authorize(response_type, user_id, client_id, redirect_uri, scop
   return response_params
 
 
-def handle_grant_type_authorization_code(client_id, redirect_uri, client_secret, code):
+def handle_grant_type_authorization_code(client_id, redirect_uri, code):
   app = validator.validate_client(client_id)
   redirect_uri = validator.validate_redirect_uri(app, redirect_uri)
-  validator.validate_client_secret(app, client_secret)
   if not code:
     raise OAuthException(
       'code param is missing',
@@ -128,7 +127,7 @@ def handle_grant_type_client_credentials(client_id, client_secret):
     )
   token = access_token_retrieve_or_create(app.id)
   return {
-    'access_token': token.token,
+    'access_token': token,
     'token_type': 'bearer'
   }
 

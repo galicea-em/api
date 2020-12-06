@@ -74,9 +74,12 @@ def test_implicit():
         user_id=0
   scope=request.args.get('scope')
   state=request.args.get('state')
-  if not state: state=''
   clientID=request.args.get('client_id')
   redirectUri = request.args.get('redirect_uri')
+  if not state: state=''
+  if not scope: scope=''
+  if not clientID: clientID=''
+  if not redirectUri: redirectUri=''
   if user_id>0:
     action = "/oauth/authorize"
     form_login=''

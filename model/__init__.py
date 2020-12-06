@@ -1,6 +1,7 @@
 COMMANDLINE=False
 CREATING=False
-DB_PATH='sketch'
+#DB_PATH='sketch'
+DB_PATH='sqlite:///api.db'
 dm = None
 
 

@@ -50,18 +50,18 @@ def handle_system_exception(error, code=400):
 @ns.param('redirect_uri', """Adres przekierowania po uwierzytelnieniu.   
                     Opcjonalny, ale gdy podajemy, musi to być jedno z zarejestrowanych adresów URL.
                     W tej implementacji jest wymagany""")
-@ns.param('scope', """Opcjonalny. Zakresy informacji/funkcji do których dostęp powinien potwierdzić użytkownika końcowy. 
+@ns.param('scope', """Opcjonalny. Zakresy informacji/funkcji dla klienta 
+                      (dostęp dpowinien potwierdzić użytkownik końcowy). 
                       Identyfikatory rozdzielone spacjami'. """)
-@ns.param('state', '''Rekomendowany. Niejawny ciąg znaków, który zostanie przekazany z powrotem w odpowiedzi,  
-a zatem może być używany do komunikowania stanu po stronie klienta  i zapobiegania atakom fałszowania zapytań - CSRF.''')
+@ns.param('state', '''Rekomendowany. Niejawny ciąg znaków, który zostanie przekazany z powrotem w odpowiedzi.  
+Może być używany do weryfikacji po stronie klienta  - zapobiegania atakom fałszowania zapytań - CSRF.''')
 @ns.param('response_mode',
           '''Określa, czy parametry mają być dołączane do przekierowania w zapytaniu ("query"),  
           czy jako fragment URL ("fragment") - po znaku #.  
           Dla response_type=code wartością domyślną jest 'query' w p.p. - fragment.
           W tej implementacji parametr przyjmuje zawsze wartość domyślną (podana w zapytaniu jest ignorowana).''')
-# zob, https://tools.ietf.org/html/rfc7636
-#rfc7636 @ns.param('code_challenge', 'Kod do weryfikacji - opcjonalny')
-#rfc7636 @ns.param('code_challenge_method', 'Metoda weryfikacji')
+@ns.param('code_challenge', 'Kod do weryfikacji - opcjonalny; zob, https://tools.ietf.org/html/rfc7636')
+@ns.param('code_challenge_method', 'Metoda wyliczenia code_challenge (PLAIN/S256)')
 class AuthorizeClass(Resource):
 #    @ns.marshal_with(Token)
     aparser=parser
@@ -103,14 +103,13 @@ Implicit Grant: https://tools.ietf.org/html/rfc6749 4.2
               'error_description': 'user is not logged in or login timeout'
             }
           (response_type, client_id, redirect_uri, scopes, state,
-             code_challenge, code_challenge_method) = validator.check_oauth_authorize_args(args)
+             response_mode, code_challenge, code_challenge_method) = validator.check_oauth_authorize_args(args)
           response_params=handle_oauth_authorize(response_type, user_id, client_id,
                              redirect_uri, scopes, state)
           if 'error' in response_params:
             # If those are not valid, we must not redirect back to the client
             # - instead, we display a message to the user
             return response_params
-          response_mode = 'query' if response_type == 'code' else 'fragment'
           location = '{}{}{}'.format(
             redirect_uri,
             '?' if response_mode == 'query' else '#',
@@ -133,18 +132,18 @@ Implicit Grant: https://tools.ietf.org/html/rfc6749 4.2
 
 @ns.route('/token')
 @ns.param('client_id', 'ID Klienta.')
-@ns.param('grant_type','="authorization_code" - Required')
-@ns.param('code', 'Kod uzyskany w zapytaniu /authorize - Required')
+@ns.param('grant_type','="authorization_code" | "client_credentials" - obowiązkowy')
+@ns.param('code', 'Kod uzyskany w zapytaniu /authorize - obowiązkowy')
 @ns.param('redirect_uri', 'Jesli podany na etapie autoryzacji - obowiązkowy (taki sam)')
-@ns.param('client_secret', 'Tajne hasło uzyskane przy rejestracji aplikacji/klienta.')
-#@ns.param('code_verifier', 'Obowiązkowy - o ile authorization request zawierał "code_challenge"')
+@ns.param('client_secret', 'Tajne hasło uzyskane przy rejestracji aplikacji/klienta (Client Credentials).')
+@ns.param('code_verifier', 'Obowiązkowy - o ile zapytanie o kod (authorization) zawierało "code_challenge"')
 class TokenClass(Resource):
     @ns.doc('token')
     @ns.marshal_with(Token)
     def post(self): 
         """
 
-Authorization code grant
+Authorization code grant / Client Credentials
 
 https://tools.ietf.org/html/rfc6749 4.1.3., 4.1.4
 
@@ -167,7 +166,7 @@ Zwraca JSON:
         parser = reqparse.RequestParser()
         parser.add_argument('client_id', required=True, location='form')
         parser.add_argument('grant_type', required=True, location='form')
-        parser.add_argument('code', required=True, location='form')
+        parser.add_argument('code', required=False, location='form')
         parser.add_argument('redirect_uri', required=True, location='form')
         parser.add_argument('client_secret', required=False, location='form')
         parser.add_argument('code_verifier', required=False, location='form')
@@ -179,12 +178,23 @@ Zwraca JSON:
                     OAuthException.INVALID_REQUEST,
                 )
             if args['grant_type'] == 'authorization_code':
+              if 'code' not in args:
+                raise OAuthException(
+                  'code param is missing',
+                  OAuthException.INVALID_REQUEST,
+                )
               (client_id, redirect_uri, client_secret, code ) = validator.check_grant_type_authorization_args(args)
               #return json.dumps(
-              return handle_grant_type_authorization_code(client_id, redirect_uri, client_secret, code )
+              return handle_grant_type_authorization_code(client_id, redirect_uri, code)
             elif args['grant_type'] == 'client_credentials':
+              if 'client_secret' not in args:
+                raise OAuthException(
+                  'client_secret param is missing',
+                  OAuthException.INVALID_REQUEST,
+                )
               (client_id, client_secret)=validator.check_grant_type_client_args(args)
-              return json.dumps(handle_grant_type_client_credentials(client_id, client_secret))
+              #return json.dumps( ... )
+              return handle_grant_type_client_credentials(client_id, client_secret)
             else:
                 raise OAuthException(
                     'Unsupported grant_type param: \'{}\''.format(args['grant_type']),

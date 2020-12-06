@@ -71,11 +71,15 @@ class OAuthValidator():
           )
         redirect_uri = args['redirect_uri']
         scopes = args.get('scope').split(' ') if args.get('scope') else []
+        response_mode=args.get('response_mode')
+        if not response_mode:
+          response_mode= 'query' if response_type == 'code' else 'fragment'
         return (response_type,
                 client_id,
                 redirect_uri,
                 scopes,
                 self.arg_or_null(args, 'state'),
+                response_mode,
                 self.arg_or_null(args, 'code_challenge'),
                 self.arg_or_null(args, 'code_challenge_method')
                 )
@@ -101,7 +105,7 @@ class OAuthValidator():
           OAuthException.INVALID_CLIENT,
         )
       return (
-        int(args['client_id']),
+        int_client_id(args['client_id']),
         args['client_secret']
       )
 

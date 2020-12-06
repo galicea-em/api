@@ -93,4 +93,4 @@ def access_token_retrieve_or_create(app_id,user_id=0,scopes=''):
     #token=alpha_numeric_string(64)
     token=create_id_token(get_host_url(), user_id, app_id, {'scopes':scopes})
     put_access_token(token, app_id, user_id)
-    return token
+    return token.token

@@ -1,4 +1,4 @@
-echo "Implicit Grant"
+echo "Open ID"
 
 cd ..
 UUID=$(./manager.py --id=1 uuid)
