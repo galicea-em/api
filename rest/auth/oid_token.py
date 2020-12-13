@@ -75,22 +75,24 @@ def create_id_token(host_url, user_id, client_id, extra_claims):
         'iat': int(time.time()),
         'exp': int(time.time()) + 15 * 60
     }
+    """
     if 'auth_time' in extra_claims:
         claims['auth_time'] = extra_claims['auth_time']
     if 'nonce' in extra_claims:
         claims['nonce'] = extra_claims['nonce']
     if 'at_hash' in extra_claims:
         claims['at_hash'] = extra_claims['at_hash']
-
+    """
+    claims.update(extra_claims)
     key = get_id_token_jwk()
     return jwt_encode(claims, key)
 
-def access_token_retrieve_or_create(app_id,user_id=0,scopes=''):
+def access_token_retrieve_or_create(app_id,user_id=0,scope=''):
   tk=get_access_token(app_id, user_id)
   if tk:
     return tk.token
   else:
     #token=alpha_numeric_string(64)
-    token=create_id_token(get_host_url(), user_id, app_id, {'scopes':scopes})
+    token=create_id_token(get_host_url(), user_id, app_id, {'scope':scope})
     put_access_token(token, app_id, user_id)
-    return token.token
+    return token

@@ -5,7 +5,7 @@
 
 from flask_restx import reqparse
 from flask_restx import Namespace, Resource
-import json
+
 
 from werkzeug.urls import url_encode
 from flask import redirect, abort
@@ -131,12 +131,14 @@ Implicit Grant: https://tools.ietf.org/html/rfc6749 4.2
 ############# token
 
 @ns.route('/token')
-@ns.param('client_id', 'ID Klienta.')
-@ns.param('grant_type','="authorization_code" | "client_credentials" - obowiązkowy')
-@ns.param('code', 'Kod uzyskany w zapytaniu /authorize - obowiązkowy')
-@ns.param('redirect_uri', 'Jesli podany na etapie autoryzacji - obowiązkowy (taki sam)')
-@ns.param('client_secret', 'Tajne hasło uzyskane przy rejestracji aplikacji/klienta (Client Credentials).')
-@ns.param('code_verifier', 'Obowiązkowy - o ile zapytanie o kod (authorization) zawierało "code_challenge"')
+@ns.param('client_id', 'ID Klienta. Np. 5ac0c11b-62ee-4c9d-b688-4ff841df1f15',_in='formData')
+@ns.param('grant_type','authorization_code | client_credentials - obowiązkowy',_in='formData')
+@ns.param('code', 'Kod uzyskany w zapytaniu /authorize - obowiązkowy dla authorization_code',_in='formData')
+@ns.param('redirect_uri', 'Jesli podany na etapie autoryzacji - obowiązkowy (taki sam)',_in='formData')
+@ns.param('client_secret', 'Tajne hasło (secret) uzyskane przy rejestracji aplikacji/klienta (Client Credentials).',_in='formData')
+@ns.param('code_verifier', 'Obowiązkowy - o ile zapytanie o kod (authorization) zawierało "code_challenge"',_in='formData')
+@ns.param('scope', """Opcjonalny. Zakresy informacji/funkcji dla klienta 
+                      Identyfikatory rozdzielone spacjami'. """,_in='formData')
 class TokenClass(Resource):
     @ns.doc('token')
     @ns.marshal_with(Token)
@@ -164,13 +166,21 @@ Zwraca JSON:
 "scope": "{Scopes}" // - Mandatory if the granted scopes differ from the requested ones.
 """
         parser = reqparse.RequestParser()
-        parser.add_argument('client_id', required=True, location='form')
         parser.add_argument('grant_type', required=True, location='form')
+        parser.add_argument('client_id', required=True, location='form')
+        parser.add_argument('grant_type', type=str, required=True,
+                             choices=["authorization_code", "client_credentials"], location='form')
         parser.add_argument('code', required=False, location='form')
         parser.add_argument('redirect_uri', required=True, location='form')
         parser.add_argument('client_secret', required=False, location='form')
         parser.add_argument('code_verifier', required=False, location='form')
-        args = parser.parse_args()
+        parser.add_argument('scope', required=False, location='form')
+        try:
+          args = parser.parse_args()
+        except OAuthException as e:
+          abort(400, str(e))
+        except Exception as e0:
+          abort(400, 'Internal: ' + str(e0))
         try:
             if 'grant_type' not in args:
                 raise OAuthException(
@@ -183,18 +193,18 @@ Zwraca JSON:
                   'code param is missing',
                   OAuthException.INVALID_REQUEST,
                 )
-              (client_id, redirect_uri, client_secret, code ) = validator.check_grant_type_authorization_args(args)
+              (client_id, redirect_uri, client_secret, code, scope ) = validator.check_grant_type_authorization_args(args)
               #return json.dumps(
-              return handle_grant_type_authorization_code(client_id, redirect_uri, code)
+              return handle_grant_type_authorization_code(client_id, redirect_uri, code,scope)
             elif args['grant_type'] == 'client_credentials':
               if 'client_secret' not in args:
                 raise OAuthException(
                   'client_secret param is missing',
                   OAuthException.INVALID_REQUEST,
                 )
-              (client_id, client_secret)=validator.check_grant_type_client_args(args)
+              (client_id, client_secret,scope)=validator.check_grant_type_client_args(args)
               #return json.dumps( ... )
-              return handle_grant_type_client_credentials(client_id, client_secret)
+              return handle_grant_type_client_credentials(client_id, client_secret,scope)
             else:
                 raise OAuthException(
                     'Unsupported grant_type param: \'{}\''.format(args['grant_type']),

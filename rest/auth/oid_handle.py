@@ -68,7 +68,7 @@ def handle_oauth_authorize(response_type, user_id, client_id, redirect_uri, scop
   return response_params
 
 
-def handle_grant_type_authorization_code(client_id, redirect_uri, code):
+def handle_grant_type_authorization_code(client_id, redirect_uri, code, scope):
   app = validator.validate_client(client_id)
   redirect_uri = validator.validate_redirect_uri(app, redirect_uri)
   if not code:
@@ -111,12 +111,14 @@ def handle_grant_type_authorization_code(client_id, redirect_uri, code):
   }
   if 'openid' in payload['scopes']:
     extra_claims = {name: payload[name] for name in payload if name in ['sid', 'nonce']}
+  if scope:
+    extra_claims['scope']=scope
     #? response['id_token'] = create_id_token(req, payload['user_id'], app, extra_claims)
     response['id_token'] = create_id_token(get_host_url(),  payload['user_id'], app.id, extra_claims)
   return response
 
 
-def handle_grant_type_client_credentials(client_id, client_secret):
+def handle_grant_type_client_credentials(client_id, client_secret, scope):
   app = validator.validate_client(client_id)
   validator.validate_client_secret(app, client_secret)
   # Could be replaced with data migration
@@ -125,7 +127,7 @@ def handle_grant_type_client_credentials(client_id, client_secret):
       'not implemented yet',
       OAuthException.INVALID_REQUEST
     )
-  token = access_token_retrieve_or_create(app.id)
+  token = access_token_retrieve_or_create(app.id,scope=scope)
   return {
     'access_token': token,
     'token_type': 'bearer'

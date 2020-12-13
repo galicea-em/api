@@ -94,7 +94,8 @@ class OAuthValidator():
         int_client_id(args['client_id']),
         args['redirect_uri'],
         self.arg_or_null(args, 'client_secret'),
-        self.arg_or_null(args, 'code')
+        self.arg_or_null(args, 'code'),
+        self.arg_or_null(args, 'scope')
       )
 
 
@@ -106,7 +107,8 @@ class OAuthValidator():
         )
       return (
         int_client_id(args['client_id']),
-        args['client_secret']
+        args['client_secret'],
+        self.arg_or_null(args, 'scope')
       )
 
     def check_openid_authorize_args(self, args):

@@ -17,3 +17,5 @@ uuid column in client_app table
 
 
 
+2020-12-13 0.0.3
+1) scope parametr for /token endpoint
