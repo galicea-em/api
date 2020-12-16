@@ -19,3 +19,9 @@ uuid column in client_app table
 
 2020-12-13 0.0.3
 1) scope parametr for /token endpoint
+
+2020-12-16 0.0.4
+1) login functions in /login directory
+2) /login (with JSON post) rename to /json_login
+   /implicit rename to /login
+3) templates and login_flask

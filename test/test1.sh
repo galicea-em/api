@@ -6,7 +6,7 @@ curl -X POST  -c "./cookiefile" \
              -d '{"user":"demo", "password":"demo"}'  \
              -H "accept: application/json" \
              -H "Content-Type: application/json" \
-             "http://127.0.0.1:5000/login"
+             "http://127.0.0.1:5000/json_login"
 
 # zapytanie curl zwraca href zamiast przekierowania
 

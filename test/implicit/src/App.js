@@ -2,7 +2,7 @@ import React from 'react'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 
 let token = null;
-const authorizeUrl = "http://127.0.0.1:5000/implicit"
+const authorizeUrl = "http://127.0.0.1:5000/login"
 
 const params = {
   scope: ["test-scope"],

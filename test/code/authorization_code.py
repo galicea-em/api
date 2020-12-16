@@ -94,7 +94,7 @@ try:
     thread_type.join(2)
     demo_login = {"user": "demo", "password": "demo"}
     session = requests.Session()
-    login = session.post('http://localhost:%d/login' % api_port, None, demo_login)
+    login = session.post('http://localhost:%d/json_login' % api_port, None, demo_login)
     cookies=session.cookies.get_dict()
     response=session.get(code_url, cookies=cookies)
     try:
