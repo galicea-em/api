@@ -253,6 +253,8 @@ class DataManager():
   def get_user_id(self, login, password):
     u=User.query.filter_by(login=login).first()
 #    (a,salt,p)=u.password.split('$')
+    if not u:
+      return 0
     if check_password_hash(u.password,password):
       return u.id
     else:

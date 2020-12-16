@@ -5,17 +5,12 @@
 
 from flask_bootstrap import Bootstrap
 from flask_cors import CORS
-from flask import jsonify, request
-from flask_restx import Resource
-from flask import request, flash, redirect, render_template, url_for
-from flask_login import login_user, logout_user
+from flask import jsonify
 
 from . import app
-from rest import ses_login, get_host_url, get_session_auth_time, get_session_uid, get_session_sid
-from rest import get_user_id, put_access_token, put_session
-from rest import time_to_now, LOGIN_TIMEOUT, RESPONSE_TYPES_SUPPORTED
-from rest import create_id_token
+from rest import RESPONSE_TYPES_SUPPORTED
 from rest import api
+from login import init_login
 
 # CORS
 CORS(app)
@@ -28,6 +23,7 @@ def after_request(response):
 
 
 Bootstrap(app)
+
 
 ns = api.namespace('api', description='Operacje API - obsługa serwera')
 
@@ -51,90 +47,11 @@ def get_well_known():
     return jsonify(data)
 
 
-@app.route("/implicit", methods=["POST","GET"])
-def test_implicit():
-  password=request.args.get('password')
-  if password:
-    login = request.args.get('login')
-    user_id = get_user_id(login, password)
-    if user_id is None:
-      user_id=0
-    elif user_id > 0:
-      sid=ses_login(user_id)
-      put_session(sid, user_id)
-    else:
-      user_id=0
-  else:
-    user_id = get_session_uid()
-    if user_id is None:
-      user_id=0
-    elif user_id>0:
-      auth_time = get_session_auth_time()
-      if time_to_now(auth_time) > LOGIN_TIMEOUT:
-        user_id=0
-  scope=request.args.get('scope')
-  state=request.args.get('state')
-  clientID=request.args.get('client_id')
-  redirectUri = request.args.get('redirect_uri')
-  if not state: state=''
-  if not scope: scope=''
-  if not clientID: clientID=''
-  if not redirectUri: redirectUri=''
-  if user_id>0:
-    action = "/oauth/authorize"
-    form_login=''
-    form_scope='''Zezwalasz na ''' + scope + '''<br />
-         <button type="submit">Akceptujesz?</button>
-    '''
-  else:
-    action='/implicit'
-    form_scope=''
-    form_login='''
-                <div class="form-group">
-                    login=<input name="login"/>
-                </div>
-                <div class="form-group">
-                    password=<input type="password" name="password"/>
-                </div>
-                <button type="submit">Loguj</button>
-    '''
-  return '''
-<html>
-    <head>
-        <title>Test - implicit grant</title>
-    </head>
-<body>
- <form action="'''+action+'''" method="get">
-   <input type="hidden" name="response_type" value="token"/>
-   <input type="hidden" name="response_mode" value="query"/>
-   <input type="hidden" name="client_id" value="''' + clientID + '''"/>
-   <input type="hidden" name="redirect_uri" value="''' + redirectUri + '''"/>
-   <input type="hidden" name="state" value="''' + state + '''"/>
-   <input type="hidden" name="scope" value="''' + scope + '''"/>
-   '''+form_scope+'''
-   '''+form_login+'''
- </form>
-</body>
-</html>
-  '''
-
-
-
-@app.route("/login", methods=["POST"])
-def login_post():
-    r = request.get_json()
-    if r and "user" in r:
-      user_id=get_user_id(r["user"],r["password"])
-      if not user_id>0:
-          return jsonify({"error": "Incorrect username/password"}), 401
-      sid=ses_login(user_id)
-      put_session(sid, user_id)
-    return jsonify({"error": "To login PUT Json({username: ..., password: ...}"}), 401
-
 from rest import  api_openid
 from rest import  api_oauth
 
-
 def define():
+#  init_login('flask')
+  init_login('simple')
   api.add_namespace(api_oauth)
   api.add_namespace(api_openid)
