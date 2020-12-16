@@ -6,8 +6,7 @@
 from flask import jsonify, request
 
 from conf import app
-from rest import ses_login, get_session_auth_time, get_session_uid
-from rest import get_user_id, put_session
+from rest import ses_login, get_session_auth_time, get_session_uid, get_user_id, put_session
 from rest import time_to_now, LOGIN_TIMEOUT
 
 @app.route("/login", methods=["POST","GET"])
@@ -39,14 +38,14 @@ def test_implicit():
   if not scope: scope=''
   if not clientID: clientID=''
   if not redirectUri: redirectUri=''
-  if user_id>0:
+  if user_id>0: # consent screen
     action = "/oauth/authorize"
     form_login=''
     form_scope='''Zezwalasz na ''' + scope + '''<br />
          <button type="submit">Akceptujesz?</button>
     '''
   else:
-    action='/login'
+    action='/login' 
     form_scope=''
     form_login='''
                 <div class="form-group">

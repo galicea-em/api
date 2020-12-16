@@ -24,6 +24,8 @@ def ext_user_id(user_id):
   return user.login if user else None
 
 def int_client_id(client_id):
+  if not client_id:
+    return 0
   app=dm.get_client_by_uuid(client_id)
   return app.id if app else 0
 

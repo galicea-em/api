@@ -1,0 +1,27 @@
+{%extends "base.html" %}
+
+{%block title %}Logowanie{% endblock %}
+
+{%block body %}
+<h1 class="text-center">Logowanie</h1>
+
+<div class="row">
+ <div class="col-md-4"></div>
+ <div class="col-md-4">
+  <form action="{{ action }}" method="get">
+   <input type="hidden" name="response_type" value="token"/>
+   <input type="hidden" name="response_mode" value="query"/>
+   <input type="hidden" name="client_id" value="{{ client_id }}"/>
+   <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}"/>
+   <input type="hidden" name="state" value="{{ state }}"/>
+   <input type="hidden" name="scope" value="{{ scope }}"/>
+
+    <div class="form-group">
+      Zezwalasz na: {{ scope }}
+     <button type="submit">Akceptujesz?</button>
+    </div>
+  </form>
+ </div>
+ <div class="col-md-4"></div>
+</div>
+{%endblock %}

@@ -7,6 +7,9 @@ from flask_wtf import FlaskForm as Form
 from wtforms import StringField, PasswordField
 from wtforms import validators
 
+from rest import ses_login, get_session_auth_time, get_session_uid, get_user_id, put_session
+from rest import time_to_now, LOGIN_TIMEOUT
+
 from conf import app
 
 from model import selected_dm
@@ -55,12 +58,48 @@ else:
     if form.validate_on_submit():
       res=User.query.filter_by(login=form.username.data)
       current_user = res.one() if res else None
-      login_user(current_user)
-      flash("Logged in successfully.", "success")
-      return redirect(request.form.get('next') or url_for(".index"))
-    else:
-      redirectUri = request.args.get('redirect_uri')
-      return render_template("login.html", form=form, next=redirectUri)
+      if current_user:
+        user_id = current_user.id
+#        login_user(current_user)
+        sid = ses_login(user_id)
+        put_session(sid, user_id)
+        flash("Logged in successfully.", "success")
+#        return redirect(request.form.get('redirect_uri') or url_for(".index"))
+        scope = request.form.get('scope')
+        state = request.form.get('state')
+        clientID = request.form.get('client_id')
+        redirectUri = request.form.get('redirect_uri')
+        if scope:
+          return render_template("consent.html", form=form,
+                           action="/oauth/authorize",
+                           redirect_uri=redirectUri,
+                           scope=scope,
+                           state=state,
+                           client_id=clientID
+                           )
+        else:
+          return redirect(url_for("oauth_authorize_class",
+                                  response_type='token',
+                                  response_mode='query',
+                                  redirect_uri=redirectUri,
+                                  scope=scope,
+                                  state=state,
+                                  client_id=clientID
+                                  ))
+    scope = request.args.get('scope')
+    state = request.args.get('state')
+    clientID = request.args.get('client_id')
+    redirectUri = request.args.get('redirect_uri')
+    if not state: state = ''
+    if not scope: scope = ''
+    if not clientID: clientID = ''
+    if not redirectUri: redirectUri = ''
+    return render_template("login.html", form=form,
+                           redirect_uri=redirectUri,
+                           scope=scope,
+                           state=state,
+                           client_id=clientID
+                           )
 
 
   @app.route("/logout")
