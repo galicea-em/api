@@ -69,18 +69,21 @@ else:
         state = request.form.get('state')
         clientID = request.form.get('client_id')
         redirectUri = request.form.get('redirect_uri')
+        response_mode = request.form.get('response_mode')
+        if not response_mode: response_mode = 'query'
         if scope:
           return render_template("consent.html", form=form,
                            action="/oauth/authorize",
                            redirect_uri=redirectUri,
                            scope=scope,
                            state=state,
+                           response_mode=response_mode,
                            client_id=clientID
                            )
         else:
           return redirect(url_for("oauth_authorize_class",
                                   response_type='token',
-                                  response_mode='query',
+                                  response_mode=response_mode,
                                   redirect_uri=redirectUri,
                                   scope=scope,
                                   state=state,
@@ -90,6 +93,8 @@ else:
     state = request.args.get('state')
     clientID = request.args.get('client_id')
     redirectUri = request.args.get('redirect_uri')
+    response_mode = request.args.get('response_mode')
+    if not response_mode: response_mode = 'query'
     if not state: state = ''
     if not scope: scope = ''
     if not clientID: clientID = ''
@@ -98,6 +103,7 @@ else:
                            redirect_uri=redirectUri,
                            scope=scope,
                            state=state,
+                           response_mode=response_mode,
                            client_id=clientID
                            )
 

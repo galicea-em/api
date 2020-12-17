@@ -6,8 +6,9 @@ const authorizeUrl = "http://127.0.0.1:5000/login"
 
 const params = {
   scope: ["test-scope"],
-  'client_id': "2",
-  'redirect_uri': document.location.href+'callback'
+  'client_id': "f8fdf5ef-b57a-49e6-b22b-5e8c088e4828",
+  'redirect_uri': document.location.href+'callback',
+  'response_mode':'fragment'
 }
 
 const urlbuilder = (params) => {
@@ -25,6 +26,7 @@ const urldecoder = (urlString) => {
     pars.map((param) => {
       const [k, v] = param.split('=').map(decodeURIComponent);
       result[k]=v;
+      return v 
      })
     return result
   }
@@ -49,8 +51,13 @@ const TestImplicit = () => {
 
 const Callback = () => {
   if (!token) {
-    let hash=urldecoder(window.location.hash)
-    token = hash['access_token']  
+    if (window.location.hash) {
+      let hash=urldecoder(window.location.hash)
+      token = hash['access_token']    
+    } else {
+      let search=urldecoder(window.location.search.slice(1))
+      token = search['access_token']    
+    }
   }
 
 

@@ -51,7 +51,7 @@ from rest import  api_openid
 from rest import  api_oauth
 
 def define():
-#  init_login('flask')
-  init_login('simple')
+  init_login('flask')
+#  init_login('simple')
   api.add_namespace(api_oauth)
   api.add_namespace(api_openid)

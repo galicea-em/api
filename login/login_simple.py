@@ -34,6 +34,8 @@ def test_implicit():
   state=request.args.get('state')
   clientID=request.args.get('client_id')
   redirectUri = request.args.get('redirect_uri')
+  response_mode = request.args.get('response_mode')
+  if not response_mode: response_mode='query'
   if not state: state=''
   if not scope: scope=''
   if not clientID: clientID=''
@@ -64,7 +66,7 @@ def test_implicit():
 <body>
  <form action="'''+action+'''" method="get">
    <input type="hidden" name="response_type" value="token"/>
-   <input type="hidden" name="response_mode" value="query"/>
+   <input type="hidden" name="response_mode" value="''' + response_mode+ '''"/>
    <input type="hidden" name="client_id" value="''' + clientID + '''"/>
    <input type="hidden" name="redirect_uri" value="''' + redirectUri + '''"/>
    <input type="hidden" name="state" value="''' + state + '''"/>
@@ -75,16 +77,3 @@ def test_implicit():
 </body>
 </html>
   '''
-
-
-
-@app.route("/json_login", methods=["POST"])
-def login_post():
-    r = request.get_json()
-    if r and "user" in r:
-      user_id=get_user_id(r["user"],r["password"])
-      if not user_id>0:
-          return jsonify({"error": "Incorrect username/password"}), 401
-      sid=ses_login(user_id)
-      put_session(sid, user_id)
-    return jsonify({"error": "To login PUT Json({username: ..., password: ...}"}), 401

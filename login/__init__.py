@@ -5,4 +5,5 @@ def init_login(sel):
     from  . import login_flask
   elif sel=='simple':
     from  . import login_simple
+  from  . import login_json
 
