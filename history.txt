@@ -25,3 +25,4 @@ uuid column in client_app table
 2) /login (with JSON post) rename to /json_login
    /implicit rename to /login
 3) templates and login_flask
+

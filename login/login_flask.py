@@ -1,56 +1,18 @@
 # coding: utf-8
 
 from flask import request, flash, redirect, render_template, url_for
-from flask_login import current_user, logout_user, login_user, LoginManager
-
-from flask_wtf import FlaskForm as Form
-from wtforms import StringField, PasswordField
-from wtforms import validators
-
-from rest import ses_login, get_session_auth_time, get_session_uid, get_user_id, put_session
-from rest import time_to_now, LOGIN_TIMEOUT
-
+from flask_login import current_user, logout_user
+from rest import ses_login, put_session
 from conf import app
 
 from model import selected_dm
 if selected_dm()=='sketch':
 
   def flask_login():
-    return render_template("nologin.html")
+    return render_template("protected.html")
 else:
+  from .login_form import LoginForm
   from model.sql_model import User
-
-  login_manager = LoginManager()
-  login_manager.init_app(app)
-  login_manager.login_view = "login"
-  login_manager.login_message_category = "warning"
-  from pprint import pprint
-  pprint(current_user)
-
-  @login_manager.user_loader
-  def load_user(user_id):
-    return User.query.filter_by(id=user_id).one()
-
-
-  class LoginForm(Form):
-    username = StringField(u'Identyfikator', validators=[validators.required()])
-    password = PasswordField(u'Hasło', validators=[validators.optional()])
-
-    def validate(self):
-      check_validate = super(LoginForm, self).validate()
-      # if our validators do not pass
-      if not check_validate:
-        return False
-      user = User.query.filter_by(login=self.username.data).one()
-      if not user:
-        self.username.errors.append(u'Błędny identyfikator')
-        return False
-
-      # Do the passwords match
-      if not user.check_password(self.password.data):
-        self.username.errors.append(u'Błędny identyfikator lub hasło')
-        return False
-      return True
 
   @app.route("/login", methods=["GET", "POST"])
   def login():
@@ -71,6 +33,10 @@ else:
         redirectUri = request.form.get('redirect_uri')
         response_mode = request.form.get('response_mode')
         if not response_mode: response_mode = 'query'
+        username=current_user.login
+        print(username)
+        if username=='admin':
+          return redirect('/index')
         if scope:
           return render_template("consent.html", form=form,
                            action="/oauth/authorize",
@@ -107,13 +73,16 @@ else:
                            client_id=clientID
                            )
 
-
   @app.route("/logout")
   def logout():
       logout_user()
       flash("You have been logged out.", "success")
       return redirect(url_for(".login"))
 
+  from .login_decorator import login_required
+
   @app.route("/index")
+  @login_required('admin')
   def index():
-    return render_template("nologin.html")
+    return render_template("protected.html")
+

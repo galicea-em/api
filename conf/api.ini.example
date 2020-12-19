@@ -14,3 +14,11 @@ db_path=sqlite:///api.db
 key=key.jwk
 rsa=jwt.pem
 
+[users]
+admin=admin
+
+[authLDAP]
+userAttr=uid
+userBase=ou=Users,dc=example,dc=com
+uri=ldap://10.0.0.1
+port=389

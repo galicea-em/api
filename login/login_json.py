@@ -16,4 +16,5 @@ def login_post():
           return jsonify({"error": "Incorrect username/password"}), 401
       sid=ses_login(user_id)
       put_session(sid, user_id)
+      return jsonify({"message": "success"}), 200
     return jsonify({"error": "To login PUT Json({username: ..., password: ...}"}), 401
