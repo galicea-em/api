@@ -14,8 +14,8 @@ login_manager.login_view = "login"
 login_manager.login_message_category = "warning"
 
 @login_manager.user_loader
-def load_user(user_id):
-  return User.query.filter_by(id=user_id).one()
+def load_user(id):
+  return User.query.get(int(id))
 
 class LoginForm(Form):
   username = StringField(u'Identyfikator', validators=[validators.required()])

@@ -28,11 +28,11 @@ def login_required(userclass=''):
         if userclass=='admin':
           config.read("conf/api.ini")
           ok=config['users']['admin'].find(username)>=0
-        if not ok:
-            raise Exception(
-              'login incorrect',
-              'protected zone',
-            )
+          if not ok:
+              raise Exception(
+                'login incorrect',
+                'protected zone',
+              )
         response = endpoint(*args, **kwargs)
         return response
       except Exception as e:

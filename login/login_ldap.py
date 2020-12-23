@@ -1,7 +1,7 @@
 # coding: utf-8
 
-from flask import request, jsonify
-from rest import ses_login
+from flask import  redirect, request, jsonify,  flash, url_for
+from rest import ses_login, put_session
 from conf import app
 import ldap
 from conf import config
@@ -34,11 +34,27 @@ def login_ldap(user_name, user_pass):
 @app.route("/login/ldap", methods=["POST"])
 def login_ldap_ep():
     r = request.get_json()
-    if r and "user" in r:
+    if not (r and "user" in r):
+      return jsonify({"result": "To login POST Json({username: ..., password: ..., ...}"}), 401
+    else:
       res=login_ldap(r["user"],r["password"])
       if not res:
           return jsonify({"result": "Incorrect username/password"}), 401
       sid=ses_login(r["user"])
-      return jsonify({"result": "success"}), 200
-    return jsonify({"result": "To login PUT Json({username: ..., password: ...}"}), 401
-
+      put_session(sid, r["user"])
+      flash("Logged in successfully.", "success")
+#      return jsonify({"result": "success"}), 200
+      scope = r["scope"] if "scope" in r else ""
+      state = r["state"] if "state" in r else ""
+      clientID = r["clientID"] if "clientID" in r else ""
+      redirectUri = r["redirectUri"] if "redirectUri" in r else ""
+      response_mode = r["response_mode"] if "response_mode" in r else ""
+      if not response_mode: response_mode = 'query'
+      return redirect(url_for("oauth_authorize_class",
+                        response_type='token',
+                        response_mode=response_mode,
+                        redirect_uri=redirectUri,
+                        scope=scope,
+                        state=state,
+                        client_id=clientID
+                        ))
